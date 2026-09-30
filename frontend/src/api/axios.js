@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  withCredentials: true, // Crucial: Allows sending/receiving HTTP-Only cookies
+  // 💡 FIX 1: Appended the mandatory /api route layer prefix
+  baseURL: 'https://onrender.com',
+  withCredentials: true, // Crucial: Allows sending/receiving HTTP-Only cookies securely
 });
 
 // Automatically inject the short-lived access token into every single request header
@@ -24,8 +25,12 @@ API.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // Hit the refresh token endpoint to generate a new access token
-        const res = await axios.post('http://localhost:5000/api/auth/refresh-token', {}, { withCredentials: true });
+        // 💡 FIX 2: Replaced the local endpoint with your live production URL path
+        const res = await axios.post(
+          'https://onrender.com/auth/refresh-token', 
+          {}, 
+          { withCredentials: true }
+        );
         const { accessToken } = res.data;
         
         localStorage.setItem('accessToken', accessToken);
