@@ -1,13 +1,20 @@
 import axios from 'axios';
 
+// Automatically fallback if one configuration type isn't recognized by your bundler
+const baseBackendURL = import.meta.env?.VITE_API_URL || process.env?.REACT_APP_API_URL || 'https://sheryians-backend.onrender.com';
+
 const API = axios.create({
-  // ✅ FIX 1: Point to your correct backend URL with the mandatory /api route layer
-  baseURL: 'https://onrender.com',
-  withCredentials: true, // Crucial: Allows sending/receiving HTTP-Only cookies securely
+  baseURL: baseBackendURL,
+  withCredentials: true, 
 });
 
-// Automatically inject the short-lived access token into every single request header
+// Automatically inject /api and the access token into every single request
 API.interceptors.request.use((config) => {
+  // Force the /api layer onto all incoming request paths automatically
+  if (config.url && !config.url.startsWith('/api')) {
+    config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+  }
+
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -21,13 +28,11 @@ API.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    // If the access token expires (401) and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // ✅ FIX 2: Point the token refresh request to the live backend server
         const res = await axios.post(
-          'https://onrender.com/auth/refresh-token', 
+          `${baseBackendURL}/api/auth/refresh-token`, 
           {}, 
           { withCredentials: true }
         );
@@ -36,9 +41,8 @@ API.interceptors.response.use(
         localStorage.setItem('accessToken', accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         
-        return API(originalRequest); // Retry the original failed request
+        return API(originalRequest); 
       } catch (refreshError) {
-        // If refresh token is also expired or invalid, log out the user entirely
         localStorage.removeItem('accessToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);
