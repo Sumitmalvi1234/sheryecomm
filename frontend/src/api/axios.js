@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-// ✅ Directly pointing to your real live backend api root folder path location
+// 🚀 Hardcoded direct link to your live backend's api folder
 const API = axios.create({
   baseURL: 'https://onrender.com',
   withCredentials: true, 
 });
 
-// Clean token injection interceptor (Leaves your perfectly formatted component paths alone)
+// Clean token injection interceptor
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
