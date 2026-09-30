@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-  // ✅ FIX 1: Point to your actual live backend with the /api prefix
-  baseURL: 'https://sheryians-backend-adox.onrender.com',
+  // ✅ FIX 1: Point to your correct backend URL with the mandatory /api route layer
+  baseURL: 'https://onrender.com',
   withCredentials: true, // Crucial: Allows sending/receiving HTTP-Only cookies securely
 });
 
@@ -25,7 +25,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // ✅ FIX 2: Point the token refresh request to your live backend endpoint
+        // ✅ FIX 2: Point the token refresh request to the live backend server
         const res = await axios.post(
           'https://onrender.com/auth/refresh-token', 
           {}, 
