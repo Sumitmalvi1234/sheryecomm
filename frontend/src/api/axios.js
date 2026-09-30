@@ -1,18 +1,25 @@
 import axios from 'axios';
 
-// Automatically fallback if one configuration type isn't recognized by your bundler
-const baseBackendURL = import.meta.env?.VITE_API_URL || process.env?.REACT_APP_API_URL || 'https://sheryians-backend.onrender.com';
+const baseBackendURL = import.meta.env?.VITE_API_URL || process.env?.REACT_APP_API_URL || 'https://onrender.com';
 
 const API = axios.create({
   baseURL: baseBackendURL,
   withCredentials: true, 
 });
 
-// Automatically inject /api and the access token into every single request
+// Automatically format URLs and inject the access token
 API.interceptors.request.use((config) => {
-  // Force the /api layer onto all incoming request paths automatically
-  if (config.url && !config.url.startsWith('/api')) {
-    config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+  if (config.url) {
+    // 💡 FIX: Safely route authentication calls into the backend's /api/auth folder structure
+    if ((config.url.includes('login') || config.url.includes('register') || config.url.includes('refresh-token')) && !config.url.includes('/api/auth')) {
+      // Strips leading slash if present to prevent double slash errors
+      const cleanUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
+      config.url = `/api/auth/${cleanUrl}`;
+    } 
+    // Fallback rule for regular product routes
+    else if (!config.url.startsWith('/api')) {
+      config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+    }
   }
 
   const token = localStorage.getItem('accessToken');
