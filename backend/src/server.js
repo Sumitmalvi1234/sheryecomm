@@ -15,8 +15,12 @@ connectDB();
 // Initialize the Express Application
 const app = express();
 
-// 💡 FIX: Allow both port 3000 and port 3001 to pass the CORS policy check
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
+// 💡 FIX: Added your production Render frontend URL alongside localhost
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'http://localhost:3001',
+  'https://sheryians-shop.onrender.com' // Your live frontend URL
+];
 
 app.use(cors({
   origin: function (origin, callback) {
