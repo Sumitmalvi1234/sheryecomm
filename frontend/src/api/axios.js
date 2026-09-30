@@ -1,27 +1,13 @@
 import axios from 'axios';
 
-const baseBackendURL = import.meta.env?.VITE_API_URL || process.env?.REACT_APP_API_URL || 'https://onrender.com';
-
+// ✅ Directly pointing to your real live backend api root folder path location
 const API = axios.create({
-  baseURL: baseBackendURL,
+  baseURL: 'https://onrender.com',
   withCredentials: true, 
 });
 
-// Automatically format URLs and inject the access token
+// Clean token injection interceptor (Leaves your perfectly formatted component paths alone)
 API.interceptors.request.use((config) => {
-  if (config.url) {
-    // 💡 FIX: Safely route authentication calls into the backend's /api/auth folder structure
-    if ((config.url.includes('login') || config.url.includes('register') || config.url.includes('refresh-token')) && !config.url.includes('/api/auth')) {
-      // Strips leading slash if present to prevent double slash errors
-      const cleanUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
-      config.url = `/api/auth/${cleanUrl}`;
-    } 
-    // Fallback rule for regular product routes
-    else if (!config.url.startsWith('/api')) {
-      config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
-    }
-  }
-
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -29,25 +15,22 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor to handle token expiration (automatic refresh token call)
+// Handling token session expiration gracefully
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const res = await axios.post(
-          `${baseBackendURL}/api/auth/refresh-token`, 
+          'https://onrender.com/auth/refresh-token', 
           {}, 
           { withCredentials: true }
         );
         const { accessToken } = res.data;
-        
         localStorage.setItem('accessToken', accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        
         return API(originalRequest); 
       } catch (refreshError) {
         localStorage.removeItem('accessToken');
