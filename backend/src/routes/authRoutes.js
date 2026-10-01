@@ -23,24 +23,24 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password field cannot be empty'),
 ];
 
-// 💡 अल्टीमेट फिक्स: फ्रंटएंड के किसी भी रूट पैटर्न (URL) को क्रैश होने से बचाने के लिए डुप्लिकेट मैपिंग
+// 💡 अल्टीमेट फिक्स: फ्रंटएंड के सभी संभावित यूआरएल पैटर्न्स को एक्सेप्ट करने के लिए बैकअप रूट्स मैपिंग
 
-// रजिस्ट्रेशन के सभी संभावित रास्ते
+// 1. रजिस्ट्रेशन के रास्ते
 router.post('/register', registerValidation, register);
 router.post('/auth/register', registerValidation, register);
 router.post('/api/auth/register', registerValidation, register);
 
-// लॉगिन के सभी संभावित रास्ते
+// 2. लॉगिन के रास्ते
 router.post('/login', loginValidation, login);
 router.post('/auth/login', loginValidation, login);
 router.post('/api/auth/login', loginValidation, login);
 
-// टोकन रिफ्रेश के सभी संभावित रास्ते
+// 3. टोकन रिफ्रेश के रास्ते
 router.post('/refresh-token', refreshToken);
 router.post('/auth/refresh-token', refreshToken);
 router.post('/api/auth/refresh-token', refreshToken);
 
-// Protected Route Paths
+// 4. प्रोटेक्टेड रास्ते
 router.post('/logout', authenticate, logout);
 router.post('/auth/logout', authenticate, logout);
 
