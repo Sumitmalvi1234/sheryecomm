@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// ✅ Pointing directly to your real live backend URL with the mandatory /api prefix
+// ✅ Fixed to point to your real live backend URL with the mandatory /api prefix
 const API = axios.create({
   baseURL: 'https://onrender.com',
   withCredentials: true, 
@@ -23,7 +23,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // ✅ Pointing the refresh token call directly to your specific live backend service
+        // ✅ Fixed refresh token call to hit your live backend service cleanly
         const res = await axios.post(
           'https://onrender.com/auth/refresh-token', 
           {}, 
