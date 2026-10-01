@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// ✅ Fixed to point to your real live backend URL with the mandatory /api prefix
+// ✅ Directly using your real backend domain so environment variables cannot fail
 const API = axios.create({
   baseURL: 'https://onrender.com',
   withCredentials: true, 
@@ -23,7 +23,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // ✅ Fixed refresh token call to hit your live backend service cleanly
+        // ✅ Directly using your real backend domain for token refresh
         const res = await axios.post(
           'https://onrender.com/auth/refresh-token', 
           {}, 
