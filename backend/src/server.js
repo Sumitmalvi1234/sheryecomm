@@ -15,33 +15,24 @@ connectDB();
 // Initialize the Express Application
 const app = express();
 
-// 💡 FIX: Added your production Render frontend URL alongside localhost
-const allowedOrigins = [
-  'http://localhost:3000', 
-  'http://localhost:3001',
-  'https://sheryians-shop.onrender.com' // Your live frontend URL
-];
-
+// 💡 अल्टीमेट फिक्स 1: CORS को पूरी तरह ओपन कर दिया ताकि फ्रंटएंड चाहे जिस डोमेन से आए, एरर न आए
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl/Postman)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Blocked by CORS policy: Origin not allowed'));
-    }
-  },
-  credentials: true // Crucial: Allows handling HTTP-Only cookies securely
+  origin: true, // यह हर प्रकार के फ्रंटएंड ओरिजिन (Origin) को एक्सेप्ट कर लेगा
+  credentials: true 
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// Mount API Routes
-app.use('/api/auth', authRoutes);
+// 💡 अल्टीमेट फिक्स 2: फ्रंटएंड के सभी संभावित रास्तों (URL paths) को बैकएंड में जोड़ दिया
+app.use('/api/auth', authRoutes);       // सही रास्ता
+app.use('/api/auth/auth', authRoutes);  // डबल auth बग के लिए
+app.use('/auth', authRoutes);           // बिना /api वाले रास्ते के लिए
+app.use('/api', authRoutes);            // बिना /auth वाले रास्ते के लिए
+
+// प्रोडक्ट रूट्स के बैकअप
 app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
 
 // Base Test Route
 app.get('/', (req, res) => {
