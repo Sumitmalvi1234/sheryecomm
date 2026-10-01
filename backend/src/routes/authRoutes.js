@@ -23,13 +23,28 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password field cannot be empty'),
 ];
 
-// Public Route Paths
-router.post('/register', registerValidation, register);
-router.post('/login', loginValidation, login);
-router.post('/refresh-token', refreshToken);
+// 💡 अल्टीमेट फिक्स: फ्रंटएंड के किसी भी रूट पैटर्न (URL) को क्रैश होने से बचाने के लिए डुप्लिकेट मैपिंग
 
-// Protected Route Paths (Requires structural authentication verification token)
+// रजिस्ट्रेशन के सभी संभावित रास्ते
+router.post('/register', registerValidation, register);
+router.post('/auth/register', registerValidation, register);
+router.post('/api/auth/register', registerValidation, register);
+
+// लॉगिन के सभी संभावित रास्ते
+router.post('/login', loginValidation, login);
+router.post('/auth/login', loginValidation, login);
+router.post('/api/auth/login', loginValidation, login);
+
+// टोकन रिफ्रेश के सभी संभावित रास्ते
+router.post('/refresh-token', refreshToken);
+router.post('/auth/refresh-token', refreshToken);
+router.post('/api/auth/refresh-token', refreshToken);
+
+// Protected Route Paths
 router.post('/logout', authenticate, logout);
+router.post('/auth/logout', authenticate, logout);
+
 router.get('/me', authenticate, getMe);
+router.get('/auth/me', authenticate, getMe);
 
 module.exports = router;
